@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: ioc_scraper_db
+    environment:
+      POSTGRES_DB: iocdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Use port 5433 externally to avoid conflict
+    networks:
+      - ioc_network
+    restart: unless-stopped
+
+  # Flask Backend
+  backend:
+    build: ./backend
+    container_name: ioc_scraper_backend
+    environment:
+      DATABASE_URL: postgresql://user:password@database:5432/iocdb
+      FLASK_ENV: production
+      SECRET_KEY: your-secret-key-change-in-production
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    networks:
+      - ioc_network
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+    command: ["sh", "-c", "sleep 10 && python run.py"]
+
+  # Vue.js Frontend
+  frontend:
+    build: ./frontend
+    container_name: ioc_scraper_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ioc_network
+    restart: unless-stopped
+    environment:
+      VUE_APP_API_URL: /api
+
+networks:
+  ioc_network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

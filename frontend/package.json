@@ -1,0 +1,30 @@
+{
+  "name": "ioc-scraper-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "vue": "^3.3.0",
+    "vue-router": "^4.2.0",
+    "axios": "^1.5.0",
+    "bootstrap": "^5.3.0",
+    "bootstrap-vue-next": "^0.14.0",
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-router": "^5.0.0",
+    "@vue/cli-service": "^5.0.0",
+    "@vue/compiler-sfc": "^3.3.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+} 
