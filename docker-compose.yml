@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   database:
@@ -7,14 +5,14 @@ services:
     container_name: ioc_scraper_db
     environment:
       POSTGRES_DB: iocdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: iocuser
+      POSTGRES_PASSWORD: ioc123
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"  # Use port 5433 externally to avoid conflict
     networks:
-      - ioc_network
+      - scrape-network
     restart: unless-stopped
 
   # Flask Backend
@@ -22,15 +20,15 @@ services:
     build: ./backend
     container_name: ioc_scraper_backend
     environment:
-      DATABASE_URL: postgresql://user:password@database:5432/iocdb
+      DATABASE_URL: postgresql://iocuser:ioc123@database:5432/iocdb
       FLASK_ENV: production
-      SECRET_KEY: your-secret-key-change-in-production
+      SECRET_KEY: trustno1
     ports:
       - "5000:5000"
     depends_on:
       - database
     networks:
-      - ioc_network
+      - scrape-network
     restart: unless-stopped
     volumes:
       - ./backend:/app
@@ -40,18 +38,24 @@ services:
   frontend:
     build: ./frontend
     container_name: ioc_scraper_frontend
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     depends_on:
       - backend
     networks:
-      - ioc_network
+      - scrape-network
     restart: unless-stopped
     environment:
       VUE_APP_API_URL: /api
+      # nginx-proxy configuration
+      VIRTUAL_HOST: scrape.ttplabs.net
+      VIRTUAL_PORT: 80
+      # Let's Encrypt / acme-companion configuration
+      LETSENCRYPT_HOST: scrape.ttplabs.net
+      LETSENCRYPT_EMAIL: jgajek@gmail.com
 
 networks:
-  ioc_network:
+  scrape-network:
     driver: bridge
 
 volumes:
